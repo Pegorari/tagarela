@@ -1,6 +1,8 @@
 <h1>Tagarela Lip Sync for Unity3D</h1>
 <p><img alt="" src="http://rodrigopegorari.net/blog/wp-content/uploads/2011/11/topo_site.jpg" style="height:425px; width:950px" /></p>
 
+<iframe width="853" height="480" src="//www.youtube.com/embed/HEcQC2jIL7o?rel=0" frameborder="0" allowfullscreen></iframe>
+
 <h2>Make your 3d characters talk in few steps</h2>
 
 <p>Tagarela is an editor and runtime solution to create facial animations to your 3d characters.</p>
