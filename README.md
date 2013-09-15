@@ -20,6 +20,11 @@
 <li>Custom animation length: will play based on unity timer, and don&acute;t play an audio.</li>
 </ul>
 
+<b>
+<a href="http://www.youtube.com/watch?v=HEcQC2jIL7o" target="_blank">Click here</a> to watch the video<br>
+<a href="https://dl.dropbox.com/u/35104007/tagarela/tagarela.html" target="_blank">Click here</a> to check the real-time demo application (Unity web player)
+</b>
+
 <h2><a name="Features"></a>Features</h2>
 
 <ul>
