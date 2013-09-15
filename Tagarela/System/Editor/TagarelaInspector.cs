@@ -9,7 +9,7 @@ using System.Collections.Generic;
 [CustomEditor(typeof(Tagarela))]
 public class TagarelaInspector : Editor
 { 
-    private string versionNumber = "Tagarela Lip Sync V"+ Assembly.GetExecutingAssembly().GetName().Version;
+    private string versionNumber = "Tagarela Lip Sync 1.0";
 	private Tagarela tagarela;
 	public List<GameObject> listaObjetos;
 	public Texture logo_inspector;
