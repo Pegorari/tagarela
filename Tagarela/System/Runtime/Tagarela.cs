@@ -33,6 +33,7 @@ using System.Collections.Generic;
 
 public class Tagarela : MonoBehaviour
 {
+    public static Tagarela instance;
     public TagarelaFileStructure settings;
 
     public GameObject mainObject;
@@ -81,6 +82,7 @@ public class Tagarela : MonoBehaviour
     public void Awake()
     {
         audio.Stop();
+        instance = this;
     }
 
     public void Reset()
