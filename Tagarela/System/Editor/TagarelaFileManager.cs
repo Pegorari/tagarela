@@ -58,7 +58,7 @@ static class TagarelaFileManager
     //*************************************************** 
     // Saving ...
     // **************************************************
-    public static bool Save(string filename, List<Mesh> meshList, List<TagarelaTimelineUI.TLkeyframe> KeyframeSet, int MeshVertexCount, string AudioFile, float TotalTime)
+    public static bool Save(string filename, List<SkinnedMeshRenderer> meshList, List<TagarelaTimelineUI.TLkeyframe> KeyframeSet, int MeshVertexCount, string AudioFile, float TotalTime)
     {
 
         // Where we want to save and load to and from 
@@ -104,7 +104,7 @@ static class TagarelaFileManager
     //*************************************************** 
     // Saving ...
     // **************************************************
-    public static TagarelaFileStructure UpdateSettings(List<Mesh> meshList, List<TagarelaTimelineUI.TLkeyframe> KeyframeSet, int MeshVertexCount, string AudioFile, float TotalTime)
+    public static TagarelaFileStructure UpdateSettings(List<SkinnedMeshRenderer> meshList, List<TagarelaTimelineUI.TLkeyframe> KeyframeSet, int MeshVertexCount, string AudioFile, float TotalTime)
     {
         // we need soemthing to store the information into 
         FileData = new TagarelaFileStructure();

@@ -1,4 +1,4 @@
-﻿/*============================================================
+﻿﻿/*============================================================
 TAGARELA LIP SYNC SYSTEM
 Copyright (c) 2013 Rodrigo Pegorari
 
@@ -106,7 +106,7 @@ class TagarelaEditor : EditorWindow
             if (EditorUtility.DisplayDialog("Close animation", "Do you want to save?        ", "Yes", "No"))
             {
                 string audioName = SelectedAudioclip != null ? SelectedAudioclip.name : "";
-                TagarelaFileManager.Save(fileName, tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, audioName, tagarela.settings.animationTime);
+                TagarelaFileManager.Save(fileName, tagarela.smrTotal, guiTimeline.keyframeSet, 0, audioName, tagarela.settings.animationTime);
             }
         }
         SelectedAudioclip = null;
@@ -128,7 +128,7 @@ class TagarelaEditor : EditorWindow
 
         guiTimeline.keyframeSet = keySet;
 
-        settings = TagarelaFileManager.UpdateSettings(tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, "", guiTimeline.totalValue);
+        settings = TagarelaFileManager.UpdateSettings(tagarela.smrTotal, guiTimeline.keyframeSet, 0, "", guiTimeline.totalValue);
 
         //guiTimeline.UpdateSelection();
         guiTimelineSegment.totalValue = newLength;
@@ -159,14 +159,14 @@ class TagarelaEditor : EditorWindow
             if (isAudioBased) newAudioName = tagarela.audioFiles[audioFileIndex].name;
 
             TagarelaMorphTarget _MorphTarget = new TagarelaMorphTarget();
-            _MorphTarget.Populate(tagarela.morphTargets);
+            _MorphTarget.Populate(tagarela.smrTotal);
 
             guiTimeline = new TagarelaTimelineUI(newTime);
             guiTimeline.AddKeyframe(0f, _MorphTarget);
 
             guiTimelineSegment = new TagarelaTimelineSegmentUI(newTime);
 
-            if (TagarelaFileManager.Save(newAnimFileName, tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, newAudioName, newTime))
+            if (TagarelaFileManager.Save(newAnimFileName, tagarela.smrTotal, guiTimeline.keyframeSet, 0, newAudioName, newTime))
             {
                 TextAsset newFile = AssetDatabase.LoadMainAssetAtPath("Assets/Tagarela/System/Animations/" + newAnimFileName + ".xml") as TextAsset;
                 AssetDatabase.Refresh();
@@ -285,7 +285,7 @@ class TagarelaEditor : EditorWindow
     public void CleanVars()
     {
         RestoreOriginalMesh();
-
+        /*
         if (tagarela.mainObject.GetComponent<MeshFilter>())
         {
             tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh.vertices = tagarela.neutralMesh.vertices;
@@ -294,7 +294,7 @@ class TagarelaEditor : EditorWindow
         {
             tagarela.mainObject.GetComponent<SkinnedMeshRenderer>().sharedMesh.vertices = tagarela.neutralMesh.vertices;
         }
-
+        */
         updateMorph = false;
         tagarela.audio.clip = null;
         lastSelectionGameObjectEditing = null;
@@ -473,7 +473,7 @@ class TagarelaEditor : EditorWindow
 
                                 GUILayout.BeginVertical(styleGrid);
                                 {
-                                    for (int i = tagarela.animationFiles.Count - 1; i >= 0 ; i--)
+                                    for (int i = tagarela.animationFiles.Count - 1; i >= 0; i--)
                                     {
                                         GUILayout.BeginHorizontal();
                                         {
@@ -509,7 +509,7 @@ class TagarelaEditor : EditorWindow
                         if (GUILayout.Button("Save", styleBigButtons, GUILayout.Width(70)))
                         {
                             string audioName = SelectedAudioclip != null ? SelectedAudioclip.name : "";
-                            TagarelaFileManager.Save(fileName, tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, audioName, tagarela.settings.animationTime);
+                            TagarelaFileManager.Save(fileName, tagarela.smrTotal, guiTimeline.keyframeSet, 0, audioName, tagarela.settings.animationTime);
                         }
                         if (GUILayout.Button("Close", styleBigButtons, GUILayout.Width(70)))
                         {
@@ -518,7 +518,7 @@ class TagarelaEditor : EditorWindow
                                 case 0:
                                     updateTimeline = true;
                                     string audioName = SelectedAudioclip != null ? SelectedAudioclip.name : "";
-                                    TagarelaFileManager.Save(fileName, tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, audioName, tagarela.settings.animationTime);
+                                    TagarelaFileManager.Save(fileName, tagarela.smrTotal, guiTimeline.keyframeSet, 0, audioName, tagarela.settings.animationTime);
 
                                     if (tagarela != null) tagarela.Clean();
                                     CleanVars();
@@ -620,7 +620,7 @@ class TagarelaEditor : EditorWindow
                                 if (GUILayout.Button(icoAdd, styleBtTimeline, new GUILayoutOption[] { GUILayout.Width(22), GUILayout.Height(20) })) //btAdd
                                 {
                                     TagarelaMorphTarget _morphTargetList = new TagarelaMorphTarget();
-                                    _morphTargetList.Populate(tagarela.morphTargets);
+                                    _morphTargetList.Populate(tagarela.smrTotal);
                                     guiTimeline.AddKeyframe(0.0f, _morphTargetList);
                                     updateTimeline = true;
                                     updateMorph = true;
@@ -706,6 +706,42 @@ class TagarelaEditor : EditorWindow
                     scrollViewVector = GUILayout.BeginScrollView(scrollViewVector, styleScrollview);
                     {
 
+                        if (tagarela.smrTotal.Count > 0 && guiTimeline.selectedIndex != -1 && guiTimeline.keyframeSet.Count > 0)
+                        {
+                            EditorGUILayout.BeginVertical();
+                            {
+                                //seleciona a lista de acordo com o index selecionado
+                                TagarelaMorphTarget _MorphTarget = guiTimeline.morphSliders;
+                                GUI.color = GUI.contentColor;
+                                if (_MorphTarget != null)
+                                {
+                                    //GUILayout.Space(13f);
+                                    GUILayout.Space(14); //space before slider list
+                                    for (int i = 0; i < _MorphTarget.id.Count; i++)
+                                    {
+                                        EditorGUILayout.BeginHorizontal(styleBgSlider, GUILayout.ExpandWidth(true));
+                                        {
+                                            float temp_value = _MorphTarget.sliderValue[i];
+
+                                            GUILayout.Label(_MorphTarget.id[i], GUILayout.Width(150));
+                                            temp_value = GUILayout.HorizontalSlider(temp_value, 0, 100, GUILayout.ExpandWidth(true));
+                                            if (_MorphTarget.sliderValue[i] != temp_value)
+                                            {
+                                                _MorphTarget.sliderValue[i] = temp_value;
+
+                                                updateTimeline = true;
+                                            }
+
+                                        }
+                                        EditorGUILayout.EndHorizontal();
+                                    }
+                                }
+                            }
+                            EditorGUILayout.EndVertical();
+                        }
+
+
+                        /*
                         if (tagarela.morphTargets.Count > 0 && guiTimeline.selectedIndex != -1 && guiTimeline.keyframeSet.Count > 0)
                         {
 
@@ -739,7 +775,7 @@ class TagarelaEditor : EditorWindow
                                 }
                             }
                             EditorGUILayout.EndVertical();
-                        }
+                        }*/
 
 
 
@@ -779,7 +815,7 @@ class TagarelaEditor : EditorWindow
                         {
                             guiTimeline.isDragging = false;
                             guiTimeline.enabled = false;
-                            
+
                             if (updateMorphValue != guiTimelineSegment.SelectedValue)
                             {
                                 playMode = PlayMode.currentTime;
@@ -858,32 +894,33 @@ class TagarelaEditor : EditorWindow
             {
 
                 TagarelaMorphTarget _MorphTarget = new TagarelaMorphTarget();
-                _MorphTarget.Populate(tagarela.morphTargets);
+                _MorphTarget.Populate(tagarela.smrTotal);
 
                 for (int j = 0; j < settings.keyframes.sliderSettings[i].Length; j++)
                 {
                     float[] sliders = settings.keyframes.sliderSettings[i];
-                    if (j < tagarela.morphTargets.Count)
+
+                    if (j < tagarela.smrTotalBlendShapesCount)
                     {
                         //tagarela.morphTargets[j].hideFlags = HideFlags.DontSave;
                         _MorphTarget.sliderValue[j] = sliders[j];
                     }
                 }
                 guiTimeline.AddKeyframe(settings.keyframes.values[i], _MorphTarget);
-                
+
             }
         }
         else
         {
             guiTimeline.keyframeSet = new List<TagarelaTimelineUI.TLkeyframe>();
             TagarelaMorphTarget _MorphTarget = new TagarelaMorphTarget();
-            _MorphTarget.Populate(tagarela.morphTargets);
+            _MorphTarget.Populate(tagarela.smrTotal);
             guiTimeline.AddKeyframe(0f, _MorphTarget);
 
         }
 
         //Update the file settings
-        settings = TagarelaFileManager.UpdateSettings(tagarela.morphTargets, guiTimeline.keyframeSet, tagarela.neutralMesh.vertexCount, settings.audioFile, guiTimeline.totalValue);
+        settings = TagarelaFileManager.UpdateSettings(tagarela.smrTotal, guiTimeline.keyframeSet, 0, settings.audioFile, guiTimeline.totalValue);
         guiTimelineSegment = new TagarelaTimelineSegmentUI(settings.animationTime);
 
         tagarela.OpenFile(file);
@@ -933,12 +970,12 @@ class TagarelaEditor : EditorWindow
             switch (playMode)
             {
                 case PlayMode.all:
-                    
+
                     if (tagarela.getTimer() >= tagarela.settings.animationTime - 0.01f)
                     {
                         tagarela.setTimer(0);
                     }
-                    
+
                     timeNormalized = tagarela.getTimer() / tagarela.settings.animationTime;
                     updateMorphValue = tagarela.getTimer();
 
@@ -950,7 +987,7 @@ class TagarelaEditor : EditorWindow
                         tagarela.audio.Stop();
                         tagarela.audio.Play();
                     }
-                    
+
                     break;
 
                 case PlayMode.currentTime:
@@ -1031,6 +1068,7 @@ class TagarelaEditor : EditorWindow
 
     public void UpdateMorph()
     {
+        /*
         if (tagarela.mainObject.GetComponent<MeshFilter>())
         {
             MeshFilter filter = tagarela.mainObject.GetComponent<MeshFilter>();
@@ -1057,35 +1095,22 @@ class TagarelaEditor : EditorWindow
 
         tagarela.PreviewAnimation(updateMorphValue);
         updateMorph = false;
+         * */
+
+        tagarela.PreviewAnimation(updateMorphValue);
+        updateMorph = false;
+
     }
 
     private void RestoreOriginalMesh()
     {
-        if (tagarela != null && originalObject != null)
-        {
-            if (tagarela.mainObject.GetComponent<MeshFilter>())
-            {
-                tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh = originalObject;
-            }
-            else if (tagarela.mainObject.GetComponent<SkinnedMeshRenderer>())
-            {
-                tagarela.mainObject.GetComponent<SkinnedMeshRenderer>().sharedMesh = originalObject;
-            }
-        }
+
     }
 
     private void BackupOriginalMesh()
     {
         tagarela = Selection.activeGameObject.GetComponent<Tagarela>();
 
-        if (tagarela.mainObject.GetComponent<MeshFilter>())
-        {
-            originalObject = tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh;
-        }
-        else if (tagarela.mainObject.GetComponent<SkinnedMeshRenderer>())
-        {
-            originalObject = tagarela.mainObject.GetComponent<SkinnedMeshRenderer>().sharedMesh;
-        }
     }
 
     /*

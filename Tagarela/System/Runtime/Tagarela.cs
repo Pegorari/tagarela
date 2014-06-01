@@ -1,4 +1,4 @@
-﻿/*============================================================
+﻿﻿/*============================================================
 TAGARELA LIP SYNC SYSTEM
 Copyright (c) 2013 Rodrigo Pegorari
 
@@ -36,71 +36,106 @@ public class Tagarela : MonoBehaviour
     public static Tagarela instance;
     public TagarelaFileStructure settings;
 
+    public List<SkinnedMeshRenderer> smrTotal;
+    public int smrTotalBlendShapesCount;
+    private blendTarget[] morphTargets;
+
     public GameObject mainObject;
-    public Mesh neutralMesh,neutralMesh_temp;
-    public List<Mesh> morphTargets = new List<Mesh>();
+
+    //public List<Mesh> morphTargets = new List<Mesh>();
     public List<TextAsset> animationFiles = new List<TextAsset>();
     public List<AudioClip> audioFiles = new List<AudioClip>();
 
-    private float[] keyValues;
-    private List<float[]> _SliderSettings = new List<float[]>();
-
-    public Mesh basemesh;
-    private List<Mesh> listademesh = new List<Mesh>();
-    private vertexTarget[] v3_listademesh;
-    private Vector3[] morphFrom, morphTo;
-
+    private float[] morphOriginal, morphFrom, morphTo;
     private Timeline[] timeline;
 
     public bool isPlaying = false;
     private bool editionMode = false;
     private float timer = 0;
-	private float timerLast = 0;
-	public float timerCurrent = 0;
-	
+    private float timerLast = 0;
+    public float timerCurrent = 0;
+
     private float keyframeCurrentTime, keyframeDurationTime;
     private int keyframeCurrent, keyframeNew;
 
     private class Timeline
     {
         public float keyframeTime;
-        public Vector3[] morphTarget;
+        public float[] morphValue;
 
-        public Timeline(float keyframeCurrentTime, Vector3[] k_morphTarget)
+        public Timeline(float keyframeCurrentTime, float[] keyframeMorphValue)
         {
             this.keyframeTime = keyframeCurrentTime;
-            this.morphTarget = k_morphTarget;
+            this.morphValue = keyframeMorphValue;
         }
     }
 
-    private class vertexTarget
+
+    private class blendTarget
     {
-        public Vector3[] target;
+        public SkinnedMeshRenderer skinnedMeshRenderer;
+        public int blendShapeIndex;
+        public void SetValue(float value)
+        {
+            skinnedMeshRenderer.SetBlendShapeWeight(blendShapeIndex, value);
+        }
         //public int[] index;
     }
+
 
     public void Awake()
     {
         audio.Stop();
         instance = this;
+        FindBlendShapes();
+    }
+
+    public void FindBlendShapes()
+    {
+        SkinnedMeshRenderer[] smr = GetComponents<SkinnedMeshRenderer>();
+        SkinnedMeshRenderer[] smr_children = transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+        smrTotal = new List<SkinnedMeshRenderer>();
+
+        foreach (SkinnedMeshRenderer sm in smr)
+        {
+            if (sm.sharedMesh.blendShapeCount > 0)
+            {
+                smrTotal.Add(sm);
+            }
+        }
+
+        foreach (SkinnedMeshRenderer sm in smr_children)
+        {
+            if (sm.sharedMesh.blendShapeCount > 0)
+            {
+                smrTotal.Add(sm);
+            }
+        }
+
+        smrTotalBlendShapesCount = 0;
+        if (smrTotal.Count > 0)
+        {
+            foreach (SkinnedMeshRenderer smrItem in smrTotal)
+            {
+                smrTotalBlendShapesCount += smrItem.sharedMesh.blendShapeCount;
+            }
+        }
+
     }
 
     public void Reset()
     {
         //basemesh.RecalculateBounds();
-        if (neutralMesh != null && timeline != null)
+        if (timeline != null)
         {
-            morphFrom = neutralMesh.vertices;
-            morphTo = timeline[0].morphTarget;
+            //morphFrom = neutralMesh.vertices;
+            morphFrom = timeline[0].morphValue;
+            morphTo = timeline[0].morphValue;
         }
     }
 
     public void Repair()
     {
-        morphTargets.ForEach(delegate(Mesh m)
-        {
-            if (m == null) morphTargets.Remove(m);
-        });
         audioFiles.ForEach(delegate(AudioClip a)
         {
             if (a == null) audioFiles.Remove(a);
@@ -110,7 +145,7 @@ public class Tagarela : MonoBehaviour
             if (t == null) animationFiles.Remove(t);
         });
     }
-    
+
     public void PreviewAudio(float newTime)
     {
         if (audio.clip != null)
@@ -122,17 +157,18 @@ public class Tagarela : MonoBehaviour
     public void PreviewAnimation(float newTime)
     {
         if (timer == newTime) keyframeCurrent = -1;
-        
-        if (!editionMode) {
+
+        if (!editionMode)
+        {
             editionMode = true;
         }
-         
+
         timer = Mathf.Clamp(newTime, 0f, settings.animationTime);
         LateUpdate();
     }
-	
-	public void StartTimer(){
 
+    public void StartTimer()
+    {
         if (settings.audioFile != null && audio.clip != null)
         {
             audio.Play();
@@ -147,8 +183,8 @@ public class Tagarela : MonoBehaviour
             timer = 0;
         }
         isPlaying = true;
-	}
-	
+    }
+
     public void setTimer(float newTimer)
     {
         if (audio != null & audio.isPlaying)
@@ -156,7 +192,9 @@ public class Tagarela : MonoBehaviour
             audio.time = newTimer;
             timerCurrent = newTimer;
             timer = newTimer;
-        } else {
+        }
+        else
+        {
             timerLast = Time.realtimeSinceStartup - newTimer;
             timerCurrent = Time.realtimeSinceStartup;
             timer = timerCurrent;
@@ -165,7 +203,8 @@ public class Tagarela : MonoBehaviour
 
     public float getTimer()
     {
-		if (isPlaying){
+        if (isPlaying)
+        {
 
             if (settings.audioFile != null && audio.clip != null)
             {
@@ -174,12 +213,14 @@ public class Tagarela : MonoBehaviour
                     timerCurrent = audio.time;
                     timerCurrent = Mathf.Clamp(timerCurrent, 0, audio.clip.length);
                 }
-                else {
+                else
+                {
                     timerCurrent = 0;
                 }
 
             }
-            else {
+            else
+            {
                 timerCurrent = Time.realtimeSinceStartup - timerLast;
                 timerCurrent = Mathf.Clamp(timerCurrent, 0, settings.animationTime);
             }
@@ -190,14 +231,15 @@ public class Tagarela : MonoBehaviour
             }
             timer = timerCurrent;
 
-		}
-		
+        }
+
         return timer;
     }
 
     public void Play(int index)
     {
-        if (animationFiles.Count < index){
+        if (animationFiles.Count < index)
+        {
             Debug.LogWarning("Tagarela: Invalid Range! Index is bigger than file number.");
             return;
         }
@@ -206,7 +248,9 @@ public class Tagarela : MonoBehaviour
         if (finder != null)
         {
             PlayFile(finder);
-        } else {
+        }
+        else
+        {
             Debug.LogWarning("Tagarela: Animation file index '" + index + "' not found!");
         }
 
@@ -218,19 +262,20 @@ public class Tagarela : MonoBehaviour
         if (finder != null)
         {
             PlayFile(finder);
-        } else {
+        }
+        else
+        {
             Debug.LogWarning("Tagarela: File '" + fileName + "' not found!");
         }
     }
 
-    void PlayFile(TextAsset finder){
+    void PlayFile(TextAsset file)
+    {
         editionMode = false;
         Clean();
-        OpenFile(finder);
-        StartTimer();
+        OpenFile(file);
         BuildTimeline();
-        //isPlaying = true;
-        //if (audio != null) audio.Play();
+        StartTimer();
     }
 
     public void OpenFile(TextAsset file)
@@ -244,38 +289,25 @@ public class Tagarela : MonoBehaviour
     public void Stop()
     {
         setTimer(0);
-        basemesh.vertices = neutralMesh.vertices;
-        basemesh.RecalculateBounds();
         isPlaying = false;
         if (audio.isPlaying) audio.Stop();
     }
-    /*
-    public void Update()
-    {
 
-        if (isPlaying && getTimer() > 0 || editionMode)
-        {
-            //Animate();
-        }
-    }
-    */
     public void LateUpdate()
     {
-
         if (isPlaying && getTimer() > 0 || editionMode)
         {
             Animate();
-        } 
+        }
     }
 
     public void Animate()
     {
-        //Resources.UnloadUnusedAssets();
 
-        if (morphFrom == null || morphFrom.Length == 0) morphFrom = neutralMesh.vertices;
-        if (morphTo == null || morphTo.Length == 0) morphTo = timeline[0].morphTarget;
+        if (morphFrom == null || morphFrom.Length == 0) morphFrom = morphOriginal;
+        if (morphTo == null || morphTo.Length == 0) morphTo = timeline[0].morphValue;
 
-        Vector3[] blendMesh = neutralMesh.vertices;
+        //Vector3[] blendMesh = neutralMesh.vertices;
 
         if (keyframeCurrent != keyframeNew)
         {
@@ -283,18 +315,18 @@ public class Tagarela : MonoBehaviour
 
             if (keyframeCurrent == 0)
             {
-                morphFrom = neutralMesh.vertices;
-                morphTo = timeline[0].morphTarget;
+                morphFrom = new float[smrTotalBlendShapesCount];
+                morphTo = timeline[0].morphValue;
             }
             else if (keyframeCurrent < timeline.Length - 1 && keyframeCurrent > 0)
             {
-                morphFrom = timeline[keyframeCurrent - 1].morphTarget;
-                morphTo = timeline[keyframeCurrent].morphTarget;
+                morphFrom = timeline[keyframeCurrent - 1].morphValue;
+                morphTo = timeline[keyframeCurrent].morphValue;
             }
             else if (keyframeCurrent == timeline.Length - 1)
             {
-                morphFrom = timeline[keyframeCurrent - 1].morphTarget;
-                morphTo = neutralMesh.vertices;
+                morphFrom = timeline[keyframeCurrent - 1].morphValue;
+                morphTo = timeline[keyframeCurrent].morphValue;
             }
         };
 
@@ -323,111 +355,48 @@ public class Tagarela : MonoBehaviour
         }
 
         //UPDATE MESH
-
-        //float easing = EaseInOutQuint(keyframeCurrentTime, 0, 1, keyframeDurationTime);
         float easing = EaseInOutSine(keyframeCurrentTime, 0, 1, keyframeDurationTime);
-        
+
         if (keyframeDurationTime == 0) easing = 1; //fix caso o primeiro keyframe for zero
 
-        for (int i = 0; i < blendMesh.Length; i++)
+        float[] slider = timeline[keyframeCurrent].morphValue;
+
+        for (int j = 0; j < slider.Length; j++)
         {
-            blendMesh[i] = Vector3.Lerp(morphFrom[i], morphTo[i], easing);
+            morphTargets[j].SetValue(Mathf.Lerp(morphFrom[j], morphTo[j], easing));
         }
 
-        basemesh.vertices = blendMesh;
-        basemesh.RecalculateBounds();
-        //basemesh.hideFlags = HideFlags.DontSave;
     }
 
     public void BuildTimeline()
     {
-        keyValues = settings.keyframes.values;
-        _SliderSettings = settings.keyframes.sliderSettings;
-        listademesh = new List<Mesh>();
-        for (int j = 0; j < settings.meshList.id.Length; j++)
+
+
+        timeline = new Timeline[settings.keyframes.values.Length + 1];
+
+        morphOriginal = new float[smrTotalBlendShapesCount];
+        morphTargets = new blendTarget[smrTotalBlendShapesCount];
+        int indexCounter = 0;
+        for (int i = 0; i < smrTotal.Count; i++)
         {
-            for (int i = 0; i < morphTargets.Count; i++)
+            for (int j = 0; j < smrTotal[i].sharedMesh.blendShapeCount; j++)
             {
-                if (morphTargets[i].name == settings.meshList.description[j])
-                {
-                    //morphTargets[i].hideFlags = HideFlags.DontSave;
-                    listademesh.Add(morphTargets[i]);
-                }
-            }
-
-        }
-
-        timeline = new Timeline[keyValues.Length + 1];
-
-        v3_listademesh = new vertexTarget[listademesh.Count];
-		
-        Vector3[] v3_BaseMesh = neutralMesh.vertices;
-        for (int j = 0; j < listademesh.Count; j++)
-        {
-            v3_listademesh[j] = new vertexTarget();
-            v3_listademesh[j].target = new Vector3[neutralMesh.vertexCount];
-            v3_listademesh[j].target = listademesh[j].vertices;
-
-            for (int h = 0; h < neutralMesh.vertexCount; h++)
-            {
-                v3_listademesh[j].target[h] -= v3_BaseMesh[h];
+                morphOriginal[indexCounter] = smrTotal[i].GetBlendShapeWeight(j);
+                morphTargets[indexCounter] = new blendTarget();
+                morphTargets[indexCounter].skinnedMeshRenderer = smrTotal[i];
+                morphTargets[indexCounter].blendShapeIndex = j;
+                indexCounter++;
             }
         }
 
-        for (int i = 0; i < keyValues.Length; i++)
+        for (int i = 0; i < settings.keyframes.values.Length; i++)
         {
-
-            Vector3[] v3_temp = new Vector3[neutralMesh.vertexCount];
-
-            v3_temp = neutralMesh.vertices;
-
-            float[] slider = _SliderSettings[i];
-
-            for (int j = 0; j < listademesh.Count; j++)
-            {
-                for (int h = 0; h < neutralMesh.vertexCount; h++)
-                {
-                    v3_temp[h] += v3_listademesh[j].target[h] * ((float)slider[j] / 100);
-                }
-            }
-
-            timeline[i] = new Timeline(keyValues[i], v3_temp);
-
+            float[] slider = settings.keyframes.sliderSettings[i];
+            timeline[i] = new Timeline(settings.keyframes.values[i], slider);
         }
 
-        timeline[keyValues.Length] = new Timeline(settings.animationTime, neutralMesh.vertices);
-
-        if (neutralMesh_temp == null)
-        {
-            neutralMesh_temp = Instantiate(neutralMesh) as Mesh;
-        }
-        
-        neutralMesh_temp.vertices = neutralMesh.vertices;
-
-        if (mainObject.GetComponent<MeshFilter>())
-        {
-            MeshFilter filter = mainObject.GetComponent<MeshFilter>();
-            filter.sharedMesh.vertices = neutralMesh.vertices;
-            if (filter.sharedMesh != null)
-            {
-                filter.sharedMesh = neutralMesh_temp;
-            }
-            filter.sharedMesh.name = "Tagarela";
-            basemesh = filter.sharedMesh as Mesh;
-            //basemesh.hideFlags = HideFlags.DontSave;
-        }
-        else if (mainObject.GetComponent<SkinnedMeshRenderer>())
-        {
-            SkinnedMeshRenderer filter = mainObject.GetComponent<SkinnedMeshRenderer>();
-            filter.sharedMesh.vertices = neutralMesh.vertices;
-            if (filter.sharedMesh != null)
-            {
-                filter.sharedMesh = neutralMesh_temp;
-            }
-            filter.sharedMesh.name = "Tagarela";
-            basemesh = filter.sharedMesh as Mesh;
-            //basemesh.hideFlags = HideFlags.DontSave;
-        }
+        //float[] neutralSliders = new float[smrTotalBlendShapesCount];
+        timeline[settings.keyframes.values.Length] = new Timeline(settings.animationTime, morphOriginal);
 
     }
 
@@ -435,16 +404,9 @@ public class Tagarela : MonoBehaviour
     {
         audio.clip = null;
 
-        keyValues = null;
-        _SliderSettings = null;
-
-        listademesh = null;
-        v3_listademesh = null;
-
         isPlaying = false;
         editionMode = false;
         timer = 0;
-        basemesh = null;
 
         timeline = null;
 
