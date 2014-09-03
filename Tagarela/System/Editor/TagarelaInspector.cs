@@ -1,5 +1,5 @@
 ﻿﻿//TAGARELA LIP SYNC SYSTEM
-//Copyright (c) 2013 Rodrigo Pegorari
+//Copyright (c) 2014 Rodrigo Pegorari
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -9,15 +9,13 @@ using System.Collections.Generic;
 [CustomEditor(typeof(Tagarela))]
 public class TagarelaInspector : Editor
 {
-    private string versionNumber = "Tagarela Lip Sync 1.0";
+    private string versionNumber = "Tagarela Lip Sync 1.1";
     private Tagarela tagarela;
     public List<GameObject> listaObjetos;
     public Texture logo_inspector;
     public Texture bg_inspector;
     private Object[] filelist_animation_loader;
     private ArrayList filelist_animation = new ArrayList();
-    //private GUISkin guiskin_;
-    //private GUISkin guiskin_original;
     private Mesh tempMesh;
     private AudioClip tempAudio;
     private TextAsset tempLipFile;
@@ -25,7 +23,7 @@ public class TagarelaInspector : Editor
     private GUIStyle
             styleBoxStep, styleBoxStepTitle, styleBoxStepContent,
             styleBoxError, styleBoxErrorTitle, styleBoxErrorContent,
-            styleLabelGrid, styleButtonGrid, styleGrid, styleMainPanel,
+            styleLabelGrid, styleButtonGrid, styleGrid,
             styleMiniLabel;
     int vertexCount = 0;
     int toolbar = 0;
@@ -111,14 +109,6 @@ public class TagarelaInspector : Editor
             styleGrid = new GUIStyle();
             styleGrid.margin = new RectOffset(6, 4, 2, 2);
 
-            styleMainPanel = new GUIStyle();
-
-            styleMainPanel.normal.background = TagarelaFileManager.LoadImageResource("MainPanel.png");
-            styleMainPanel.normal.background.hideFlags = HideFlags.DontSave;
-
-            styleMainPanel.border = new RectOffset(7, 7, 2, 6);
-            styleMainPanel.padding = new RectOffset(10, 10, 10, 10);
-
             styleMiniLabel = new GUIStyle(EditorStyles.miniLabel);
             styleMiniLabel.alignment = TextAnchor.MiddleCenter;
 
@@ -126,13 +116,10 @@ public class TagarelaInspector : Editor
         }
 
         GUI.color = Color.white;
+
         GUILayout.Space(0);
-
         Rect lastRect = GUILayoutUtility.GetLastRect();
-
-        GUI.DrawTexture(new Rect(lastRect.x, lastRect.y + 4, Screen.width, bg_inspector.height), bg_inspector);
-
-        //GUI.DrawTexture (new Rect (lastRect.x, lastRect.y + 4, Screen.width, bg_inspector.height), bg_inspector);
+        GUI.DrawTexture(new Rect(0, lastRect.y + 4, Screen.width, bg_inspector.height), bg_inspector);
 
         GUILayout.Space(10);
 
@@ -154,7 +141,7 @@ public class TagarelaInspector : Editor
         EditorGUILayout.EndHorizontal();
         GUI.color = Color.white;
         GUI.enabled = true;
-        EditorGUILayout.BeginVertical(styleMainPanel);
+        EditorGUILayout.BeginVertical();
         {
             GUILayout.Space(4);
             GUI.enabled = true;
@@ -163,71 +150,7 @@ public class TagarelaInspector : Editor
             nextStepBox = 0;
             messageError = "";
 
-            /*
-            tagarela.mainObject = EditorGUILayout.ObjectField("Main Object", tagarela.mainObject, typeof(GameObject), true) as GameObject;
-
-
-
-            //Check Main Object
-            if (tagarela.mainObject == null)
-            {
-                nextStepBox = 1;
-                nextStep = false;
-            }
-            else if (!tagarela.mainObject.GetComponent<MeshFilter>() && !tagarela.mainObject.GetComponent<SkinnedMeshRenderer>())
-            {
-                nextStepBox = 1;
-                nextStep = false;
-                EditorGUILayout.Separator();
-                messageError = "The selected object doesn't have a MeshFilter or SkinnedMeshRenderer Component.";
-            }
-            else if (tagarela.mainObject.GetComponent<MeshFilter>() && tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh != null)
-            {
-                vertexCount = tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh.vertexCount;
-            }
-            else if (tagarela.mainObject.GetComponent<SkinnedMeshRenderer>() && tagarela.mainObject.GetComponent<MeshFilter>().sharedMesh != null)
-            {
-                vertexCount = tagarela.mainObject.GetComponent<SkinnedMeshRenderer>().sharedMesh.vertexCount;
-            }
-            */
-
-
             tagarela.FindBlendShapes();
-
-
-
-            /*
-            //Check Neutral Mesh
-            if (nextStep)
-            {
-                if (tagarela.neutralMesh == null)
-                {
-                    nextStepBox = 2;
-                    nextStep = false;
-                }
-                else if (tagarela.neutralMesh.vertexCount != vertexCount)
-                {
-                    nextStepBox = 2;
-                    nextStep = false;
-                    toolbar = 0;
-                    messageError = "The Neutral Mesh Vertex Count must have the same that the Main Object.";
-                }
-            }
-
-            //Check Morph Targets
-            if (nextStep && (tagarela.morphTargets == null || tagarela.morphTargets.Count == 0))
-            {
-                nextStep = false;
-                nextStepBox = 3;
-            }
-            */
-            /*
-            //Check Audio Files
-            if (nextStep && (tagarela.audioFiles == null || tagarela.audioFiles.Count == 0)) {
-                nextStepBox = 4;
-                nextStep = false;
-            }
-            */
 
             if (nextStepBox != 1)
             {
@@ -295,7 +218,6 @@ public class TagarelaInspector : Editor
                         {
                             string path = EditorUtility.OpenFilePanel("Tagarela Animation Files", Application.dataPath + "/Tagarela/Animations/", "xml");
                             path = path.Replace(Application.dataPath, "Assets");
-
                             tempLipFile = AssetDatabase.LoadMainAssetAtPath(path) as TextAsset;
                             if (tempLipFile != null)
                             {
@@ -392,7 +314,7 @@ public class TagarelaInspector : Editor
             }
 
             GUILayout.Label(versionNumber, styleMiniLabel, new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.Height(16) });
-            GUILayout.Label("Developed by Rodrigo Pegorari - 2013\nhttp://www.rodrigopegorari.net", styleMiniLabel, new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.Height(26) });
+            GUILayout.Label("Developed by Rodrigo Pegorari - 2014\nhttp://www.rodrigopegorari.net", styleMiniLabel, new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.Height(26) });
             GUILayout.Space(4f);
         }
         EditorGUILayout.EndVertical();

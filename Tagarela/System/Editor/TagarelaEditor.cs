@@ -346,7 +346,6 @@ class TagarelaEditor : EditorWindow
         }
         else if (Selection.objects.Length == 0)
         {
-
             if (lastSelectionGameObjectEditing != null && settings != null && tagarela.settings == settings && guiTimeline != null)
             {
                 dialog = ScreenDialog.Timeline;
@@ -355,58 +354,8 @@ class TagarelaEditor : EditorWindow
             {
                 Close();
             }
-
-
-
         }
 
-        /*
-        if (Selection.activeGameObject == null && dialog != ScreenDialog.Timeline || Selection.objects.Length > 1)
-        {
-            log_msg = "Select a valid object!";
-            //valid_object = false;
-            //exist_component = false;
-            Debug.Log("opa " + dialog);
-            if (dialog == ScreenDialog.Timeline)
-            {
-                if (EditorUtility.DisplayDialog("Close animation", "Do you want to save?        ", "Yes", "No"))
-                {
-                    string audioName = SelectedAudioclip != null ? SelectedAudioclip.name : "";
-                    TagarelaFileManager.Save(arquivo_aberto, tagarela.morphTargets, guiTimeline.KeyframeSet, tagarela.neutralMesh.vertexCount, audioName, tagarela.settings.animationTime);
-                    CleanVars();
-                }
-                RestoreOriginalMesh();
-            }
-            else
-            {
-                SelectedAudioclip = null;
-                if (tagarela != null) tagarela.Clean();
-                RestoreOriginalMesh();
-            }
-            dialog = ScreenDialog.InvalidObject;
-        }
-        else if (Selection.objects.Length == 1 && Selection.activeGameObject.GetComponent<MeshFilter>() && !Selection.activeGameObject.GetComponent<Tagarela>())
-        {
-
-            dialog = ScreenDialog.InvalidObject;
-        }
-        else if (Selection.objects.Length == 1 && Selection.activeGameObject.GetComponent<Tagarela>())
-        {
-            //Selection.activeGameObject.hideFlags = HideFlags.HideInHierarchy;
-            RestoreOriginalMesh();
-            BackupOriginalMesh();
-
-            if (tagarela != null)
-            {
-                dialog = ScreenDialog.InitialScreen;
-            }
-            else
-            {
-                tagarela.Clean();
-                dialog = ScreenDialog.InitialScreen;
-            }
-        }
-        */
     }
 
 
@@ -740,45 +689,6 @@ class TagarelaEditor : EditorWindow
                             EditorGUILayout.EndVertical();
                         }
 
-
-                        /*
-                        if (tagarela.morphTargets.Count > 0 && guiTimeline.selectedIndex != -1 && guiTimeline.keyframeSet.Count > 0)
-                        {
-
-                            EditorGUILayout.BeginVertical();
-                            {
-                                //seleciona a lista de acordo com o index selecionado
-                                TagarelaMorphTarget _MorphTarget = guiTimeline.morphSliders;
-                                GUI.color = GUI.contentColor;
-                                if (_MorphTarget != null)
-                                {
-                                    //GUILayout.Space(13f);
-                                    GUILayout.Space(14); //space before slider list
-                                    for (int i = 0; i < _MorphTarget.id.Count; i++)
-                                    {
-                                        EditorGUILayout.BeginHorizontal(styleBgSlider, GUILayout.ExpandWidth(true));
-                                        {
-                                            float temp_value = _MorphTarget.sliderValue[i];
-
-                                            GUILayout.Label(_MorphTarget.id[i], GUILayout.Width(150));
-                                            temp_value = GUILayout.HorizontalSlider(temp_value, 0, 100, GUILayout.ExpandWidth(true));
-                                            if (_MorphTarget.sliderValue[i] != temp_value)
-                                            {
-                                                _MorphTarget.sliderValue[i] = temp_value;
-
-                                                updateTimeline = true;
-                                            }
-
-                                        }
-                                        EditorGUILayout.EndHorizontal();
-                                    }
-                                }
-                            }
-                            EditorGUILayout.EndVertical();
-                        }*/
-
-
-
                         if (guiTimeline.refresh) updateWindow = true;
                         if (guiTimeline.isDragging)
                         {
@@ -851,7 +761,6 @@ class TagarelaEditor : EditorWindow
 
     public void LoadAnimationFile(TextAsset file)
     {
-        //RefreshMeshlist();
         RefreshAudiolist();
         tagarela.Clean();
         CleanVars();
@@ -996,6 +905,7 @@ class TagarelaEditor : EditorWindow
                     if (tagarela.audio.clip != null && SelectedAudioclip != null)
                     {
                         tagarela.PreviewAudio(updateMorphValue);
+                        //tagarela.LateUpdate();
                     }
                     else
                     {

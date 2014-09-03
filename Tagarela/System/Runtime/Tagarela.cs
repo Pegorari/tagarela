@@ -151,6 +151,8 @@ public class Tagarela : MonoBehaviour
         if (audio.clip != null)
         {
             audio.time = Mathf.Clamp(newTime, 0f, audio.clip.length);
+            audio.velocityUpdateMode = AudioVelocityUpdateMode.Fixed;
+            audio.Play();
         }
     }
 

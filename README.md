@@ -9,7 +9,7 @@
 
 <p>The main focus of the project is to create an easy-to-learn/easy-to-implement system, trough a funny and small keyframe editor.</p>
 
-<p>The system uses vertex manipulation to create the interpolation between blend shapes. Shapes can be created in your favorite 3d application, like 3dsMax, Maya or Blender.</p>
+<p>The current system now uses the native Unity blend shape support. Blend shapes can be created in your favorite 3d application, like 3dsMax, Maya or Blender.</p>
 
 <p>Using the built-in WYSIWYG Animation Editor, you can edit your animations by adding and dragging keyframes, setting the morph shape sliders to create new expression, while you see the transformations and hear the audio in the exact keyframe position. All was prepared to make the editing fast and funny.</p>
 

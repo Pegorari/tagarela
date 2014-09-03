@@ -177,7 +177,6 @@ static class TagarelaFileManager
     // Finally our save and load methods for the file itself 
     private static bool CreateXML()
     {
-
         StreamWriter writer;
         FileInfo t = new FileInfo(_FileLocation + _FileName);
         if (t.Exists) t.Delete();
@@ -186,15 +185,14 @@ static class TagarelaFileManager
         writer.Close();
         AssetDatabase.Refresh();
         return true;
-
     }
 
-    // DELETE POR NOME
+    // DELETE by NAME
     public static bool Delete(string filename)
     {
         return DeleteFile(filename);
     }
-    // DELETE POR OBJETO
+    // DELETE by OBJECT
     public static bool Delete(Object file)
     {
         return DeleteFile(file.name);
@@ -211,31 +209,8 @@ static class TagarelaFileManager
         return true;
     }
 
-    // convert bitmap to jpeg
 	public static Texture2D LoadImageResource(string res){
-        //System.Drawing.Bitmap search = (System.Drawing.Bitmap)TagarelaEditorDLL.Properties.Resources.ResourceManager.GetObject(res.Split('.')[0]);
-        //return TagarelaFileManager.BitmapToTexture2D(search);
         Texture2D returnTexture = AssetDatabase.LoadMainAssetAtPath("Assets/Tagarela/System/Editor/Images/"+res) as Texture2D;
-        //returnTexture.hideFlags = HideFlags.DontSave;
         return returnTexture;
     }
-
-    /*
-    public static Texture2D BitmapToTexture2D(System.Drawing.Bitmap bitmapOriginal)
-    {
-        // convert gif to bitmap
-        System.Drawing.Bitmap bitmap2 = new System.Drawing.Bitmap(bitmapOriginal);
-        System.Drawing.Size mySize = bitmap2.Size;
-
-        // convert bitmap to jpeg
-        MemoryStream memStream = new MemoryStream();
-        bitmap2.Save(memStream, System.Drawing.Imaging.ImageFormat.Png);
-        byte[] bytes = memStream.ToArray();
-        Texture2D myTexture = new Texture2D(mySize.Width, mySize.Height);
-
-        // load jpeg into Texture2D
-        myTexture.LoadImage(bytes);
-        return myTexture;
-    }
-    */
 }
