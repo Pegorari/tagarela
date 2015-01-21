@@ -1,5 +1,5 @@
 <h1>Tagarela Lip Sync for Unity3D</h1>
-<p><img alt="" src="http://rodrigopegorari.net/blog/wp-content/uploads/2011/11/topo_site.jpg" style="height:425px; width:950px" /></p>
+<p><img alt="" src="http://rodrigopegorari.com/blog/wp-content/uploads/2011/11/topo_site.jpg" style="height:425px; width:950px" /></p>
 
 <iframe width="853" height="480" src="//www.youtube.com/embed/HEcQC2jIL7o?rel=0" frameborder="0" allowfullscreen></iframe>
 
@@ -37,7 +37,7 @@
 </ul>
 
 <h2><a name="Support,_Examples_and_News"></a>Support, Examples and News</h2>
-<p>Access&nbsp;<a href="http://www.rodrigopegorari.net/">http://www.rodrigopegorari.net</a>&nbsp;to keep posted about the Tagarela development.</p>
+<p>Access&nbsp;<a href="http://www.rodrigopegorari.com/">http://www.rodrigopegorari.com</a>&nbsp;to keep posted about the Tagarela development.</p>
 <p>Or follow me at my twitter (@pegorari) if you wan&acute;t to stay tunned with updates.</p>
 
 <h2><a name="Pay_me_a_beer!"></a>Pay me a beer!</h2>
